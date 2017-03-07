@@ -26,22 +26,39 @@ inline void ProcessVoice(FILE *cmd, VoiceCommand &vc, char *message) {
     fclose(cmd);
 }
 
-inline float GetVolume(string recordHW, string com_duration, bool nullout) {
-    FILE *cmd;
-    float vol = 0.0f;
-    string run = "arecord -D ";
-    run += recordHW;
-    run += " -t wav -d ";
-    run += com_duration;
-    run += " -r 16000 /dev/shm/noise.wav";
-    if(nullout)
-        run += " 1>>/dev/shm/voice.log 2>>/dev/shm/voice.log";
-    system(run.c_str());
-    cmd = popen("sox /dev/shm/noise.wav -n stats -s 16 2>&1 | awk '/^Max\\ level/ {print $3}'","r");
-    fscanf(cmd,"%f",&vol);
-    fclose(cmd);
-    return vol;
-}
+//inline float GetVolume(string recordHW, string com_duration, bool nullout) {
+//    FILE *cmd;
+//    float vol = 0.0f;
+//    string run = "arecord -D ";
+//    run += recordHW;
+//    run += " -t wav -d ";
+//    run += com_duration;
+//    run += " -r 16000 /dev/shm/noise.wav";
+//    if(nullout)
+//        run += " 1>>/dev/shm/voice.log 2>>/dev/shm/voice.log";
+//    system(run.c_str());
+//    cmd = popen("sox /dev/shm/noise.wav -n stats -s 16 2>&1 | awk '/^Max\\ level/ {print $3}'","r");
+//    fscanf(cmd,"%f",&vol);
+//    fclose(cmd);
+//    return vol;
+//}
+
+inline float GetVolume(string recordHW, string com_duration, bool nullout) { 
+	FILE *cmd;
+	float vol = 0.0f;
+	string run = "arecord -D ";
+	run += recordHW;
+	run += " -f S16_LE -d "; 
+	run += com_duration; 
+	run += " -r 16000 /dev/shm/noise.wav"; 
+	if (nullout) {
+	run += " 1>>/dev/shm/voice.log 2>>/dev/shm/voice.log"; 
+	}	
+	system(run.c_str()); 
+	cmd = popen("sox /dev/shm/noise.wav -n stats -s 16 2>&1 | awk '/^Max\\ level/ {print $3}'", "r"); 
+	fscanf(cmd, "%f", &vol); 
+	fclose(cmd); 
+	return vol; }
 
 int main(int argc, char* argv[]) {
     VoiceCommand vc;
